@@ -9,7 +9,7 @@ import '../../../../core/security/encryption_service.dart';
 /// 实现本地数据与云端的双向同步
 /// 使用用户密码加密敏感信息（access_token）
 class SyncRepositoryImpl implements SyncRepository {
-  final SupabaseClient _supabase;
+  final SupabaseClient? _injectedSupabase;
   final SharedPreferences _prefs;
   
   // 用户密码缓存（仅在内存中，用于加密/解密）
@@ -18,8 +18,12 @@ class SyncRepositoryImpl implements SyncRepository {
   SyncRepositoryImpl({
     SupabaseClient? supabase,
     required SharedPreferences prefs,
-  })  : _supabase = supabase ?? Supabase.instance.client,
+  })  : _injectedSupabase = supabase,
         _prefs = prefs;
+
+  /// 延迟解析：未配置 Supabase（本地模式）时不会在构造阶段抛异常
+  SupabaseClient get _supabase =>
+      _injectedSupabase ?? Supabase.instance.client;
 
   String? get _userId => _supabase.auth.currentUser?.id;
   

@@ -1396,7 +1396,7 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<auth_provider.AuthProvider>(context);
-    final user = authProvider.user;
+    final user = authProvider.profile;
     final isDesktop = DesignSystem.isDesktop(context);
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
@@ -1524,7 +1524,7 @@ class _MainNavigationState extends State<MainNavigation> {
 
   Widget _buildMobileScaffold() {
     final authProvider = Provider.of<auth_provider.AuthProvider>(context);
-    final user = authProvider.user;
+    final user = authProvider.profile;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final themeMode = context.watch<ThemeProvider>().themeMode;

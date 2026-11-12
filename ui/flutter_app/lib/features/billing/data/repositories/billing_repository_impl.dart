@@ -19,10 +19,14 @@ class BillingRepositoryImpl implements BillingRepository {
     http.Client? client,
     SupabaseClient? supabase,
   })  : _client = client ?? http.Client(),
-        _supabase = supabase ?? Supabase.instance.client;
+        _injectedSupabase = supabase;
 
   final http.Client _client;
-  final SupabaseClient _supabase;
+  final SupabaseClient? _injectedSupabase;
+
+  /// 延迟解析：未配置 Supabase（本地模式）时不会在构造阶段抛异常
+  SupabaseClient get _supabase =>
+      _injectedSupabase ?? Supabase.instance.client;
 
   @override
   Future<PaymentOrder> createOrder({

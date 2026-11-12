@@ -25,7 +25,6 @@ import 'features/billing/data/repositories/billing_repository_impl.dart';
 import 'features/billing/domain/services/billing_service.dart';
 import 'features/billing/presentation/providers/billing_provider.dart';
 import 'features/auth/presentation/pages/login_page_redesign.dart';
-import 'features/auth/presentation/pages/register_page.dart';
 import 'features/auth/presentation/pages/forgot_password_page.dart';
 import 'features/auth/presentation/pages/account_page.dart';
 
@@ -184,7 +183,6 @@ class BovaPlayerApp extends StatelessWidget {
             home: const AuthWrapper(),
             routes: {
               '/login': (context) => const LoginPageRedesign(),
-              '/register': (context) => const RegisterPage(),
               '/forgot-password': (context) => const ForgotPasswordPage(),
               '/account': (context) => const AccountPage(),
               '/main': (context) => const MainNavigation(),
@@ -212,11 +210,8 @@ class AuthWrapper extends StatelessWidget {
           );
         }
 
-        if (authProvider.isAuthenticated) {
-          return const MainNavigation();
-        }
-
-        return const LoginPageRedesign();
+        // 发行版本开箱即用：不登录、不注册，直接进入主界面（本地 Pro 模式）
+        return const MainNavigation();
       },
     );
   }

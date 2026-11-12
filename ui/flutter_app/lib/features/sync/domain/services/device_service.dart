@@ -7,10 +7,13 @@ import 'package:device_info_plus/device_info_plus.dart';
 /// 
 /// 管理设备注册和信息
 class DeviceService {
-  final SupabaseClient _supabase;
+  final SupabaseClient? _injectedSupabase;
 
-  DeviceService({SupabaseClient? supabase})
-      : _supabase = supabase ?? Supabase.instance.client;
+  DeviceService({SupabaseClient? supabase}) : _injectedSupabase = supabase;
+
+  /// 延迟解析：未配置 Supabase（本地模式）时不会在构造阶段抛异常
+  SupabaseClient get _supabase =>
+      _injectedSupabase ?? Supabase.instance.client;
 
   String? get _userId => _supabase.auth.currentUser?.id;
 

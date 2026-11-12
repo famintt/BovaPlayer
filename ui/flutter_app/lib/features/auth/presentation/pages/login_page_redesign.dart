@@ -301,13 +301,6 @@ class _LoginPageRedesignState extends State<LoginPageRedesign>
                   size: BovaButtonSize.large,
                   isFullWidth: true,
                 ),
-                const SizedBox(height: DesignSystem.space5),
-                AuthWorkspaceFooterLink(
-                  label: S.of(context).authNoAccount,
-                  action: S.of(context).authRegisterNow,
-                  enabled: !_isLoading,
-                  onTap: () => Navigator.pushNamed(context, '/register'),
-                ),
               ],
             ),
           ),

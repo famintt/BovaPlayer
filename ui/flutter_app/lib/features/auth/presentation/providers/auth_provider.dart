@@ -39,6 +39,14 @@ class AuthProvider with ChangeNotifier {
       _state == AuthState.authenticated && _user != null;
   bool get isLoading => _state == AuthState.loading;
 
+  /// 是否为本地模式（未登录）。发行版本开箱即用，默认就是本地模式。
+  bool get isLocalMode => _user == null;
+
+  /// UI 展示用的用户档案：未登录时回落到本地 Pro 档案
+  User get profile => _user ?? _localProfile;
+
+  static final User _localProfile = User.localProfile();
+
   /// 初始化
   Future<void> _init() async {
     try {
@@ -71,7 +79,8 @@ class AuthProvider with ChangeNotifier {
         }
       });
     } catch (e) {
-      _setError('Initialization failed: $e');
+      debugPrint('[Auth] 初始化失败，进入本地模式：$e');
+      _setState(AuthState.unauthenticated);
     }
   }
 

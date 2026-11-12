@@ -8,10 +8,14 @@ import '../models/user_model.dart';
 /// 
 /// 使用 Supabase 实现认证功能
 class AuthRepositoryImpl implements AuthRepository {
-  final SupabaseClient _supabase;
+  final SupabaseClient? _injectedSupabase;
 
   AuthRepositoryImpl({SupabaseClient? supabase})
-      : _supabase = supabase ?? Supabase.instance.client;
+      : _injectedSupabase = supabase;
+
+  /// 延迟解析：未配置 Supabase（本地模式）时不会在构造阶段抛异常
+  SupabaseClient get _supabase =>
+      _injectedSupabase ?? Supabase.instance.client;
 
   @override
   Future<domain.User> register({

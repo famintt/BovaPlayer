@@ -101,8 +101,7 @@ class _AccountHeroCardState extends State<AccountHeroCard> {
 
     return Consumer<AuthProvider>(
       builder: (context, authProvider, _) {
-        final user = authProvider.user;
-        if (user == null) return const SizedBox.shrink();
+        final user = authProvider.profile;
 
         final palette = AccountPalette.forType(user.accountType, c);
         final levelLabel = switch (user.accountType) {
@@ -414,6 +413,10 @@ class _AccountRefreshButtonState extends State<_AccountRefreshButton> {
 
   Future<void> _refresh() async {
     if (_isRefreshing) return;
+    if (widget.authProvider.isLocalMode) {
+      // 本地模式没有服务端资料可刷新
+      return;
+    }
     setState(() => _isRefreshing = true);
     await widget.authProvider.refreshUser();
     if (!mounted) return;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../core/config/edition_config.dart';
 import '../../../../core/theme/design_system.dart';
 import '../../../../core/widgets/bova_button.dart';
 import '../../../../l10n/generated/app_localizations.dart';
@@ -76,7 +77,7 @@ class _AccountPageState extends State<AccountPage>
 
     final body = Consumer<AuthProvider>(
       builder: (context, authProvider, _) {
-        final user = authProvider.user;
+        final user = authProvider.profile;
         final scrollContent = FadeTransition(
           opacity: _fadeAnimation,
           child: SlideTransition(
@@ -86,9 +87,11 @@ class _AccountPageState extends State<AccountPage>
                 constraints: BoxConstraints(
                   maxWidth: DesignSystem.isDesktop(context) ? 920 : 760,
                 ),
-                child: user == null
-                    ? _MissingUserState(embedded: widget.embedded)
-                    : _AccountBody(user: user, authProvider: authProvider),
+                child: _AccountBody(
+                  user: user,
+                  authProvider: authProvider,
+                  localMode: authProvider.isLocalMode,
+                ),
               ),
             ),
           ),
@@ -149,8 +152,13 @@ class _AccountPageState extends State<AccountPage>
 class _AccountBody extends StatelessWidget {
   final User user;
   final AuthProvider authProvider;
+  final bool localMode;
 
-  const _AccountBody({required this.user, required this.authProvider});
+  const _AccountBody({
+    required this.user,
+    required this.authProvider,
+    required this.localMode,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -182,8 +190,8 @@ class _AccountBody extends StatelessWidget {
 
         const SizedBox(height: DesignSystem.space4),
 
-        // Cloud Sync
-        const AccountSyncCard(),
+        // Cloud Sync（本地模式无需云同步）
+        if (!localMode) const AccountSyncCard(),
 
         // Admin (only if admin)
         if (user.isAdmin) ...[
@@ -191,82 +199,18 @@ class _AccountBody extends StatelessWidget {
           const AccountAdminCard(),
         ],
 
-        // Upgrade CTA (not for lifetime)
-        if (!user.isLifetime) ...[
+        // Upgrade CTA（Pro 发行版无需展示升级入口）
+        if (!localMode && !user.isLifetime && !EditionConfig.isProEnabled) ...[
           const SizedBox(height: DesignSystem.space4),
           AccountUpgradeCard(user: user),
         ],
 
-        // Logout
-        const SizedBox(height: DesignSystem.space4),
-        AccountLogoutCard(authProvider: authProvider),
+        // Logout（本地模式没有登录态）
+        if (!localMode) ...[
+          const SizedBox(height: DesignSystem.space4),
+          AccountLogoutCard(authProvider: authProvider),
+        ],
       ],
-    );
-  }
-}
-
-// ─── Missing user fallback ──────────────────────────────────────────
-
-class _MissingUserState extends StatelessWidget {
-  final bool embedded;
-  const _MissingUserState({required this.embedded});
-
-  @override
-  Widget build(BuildContext context) {
-    final c = AccountColors.of(context);
-    final l = S.of(context);
-
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 460),
-        child: AccountSurfacePanel(
-          padding: const EdgeInsets.all(DesignSystem.space6),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 68,
-                height: 68,
-                decoration: BoxDecoration(
-                  color: c.accentSoft,
-                  borderRadius:
-                      BorderRadius.circular(DesignSystem.radiusXl),
-                ),
-                child: Icon(
-                  Icons.person_off_outlined,
-                  color: c.accent,
-                  size: 30,
-                ),
-              ),
-              const SizedBox(height: DesignSystem.space4),
-              Text(
-                l.accountNoInfo,
-                style: TextStyle(
-                  fontSize: DesignSystem.textXl,
-                  fontWeight: DesignSystem.weightSemibold,
-                  color: c.textPrimary,
-                ),
-              ),
-              const SizedBox(height: DesignSystem.space2),
-              Text(
-                l.accountNoInfoHint,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: DesignSystem.textSm,
-                  color: c.textSecondary,
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: DesignSystem.space5),
-              BovaButton(
-                text: l.accountGoBack,
-                onPressed: () => Navigator.pop(context),
-                isFullWidth: true,
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

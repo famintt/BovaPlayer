@@ -16,6 +16,9 @@ class User {
   final DateTime updatedAt;
   final bool isAdmin;
 
+  /// 是否为本地模式用户（未登录，数据只保存在本机）
+  final bool isLocal;
+
   const User({
     required this.id,
     required this.email,
@@ -28,7 +31,26 @@ class User {
     required this.createdAt,
     required this.updatedAt,
     this.isAdmin = false,
+    this.isLocal = false,
   });
+
+  /// 本地模式用户档案
+  ///
+  /// 发行版本开箱即用：无需注册、无需登录，直接以本地 Pro 身份使用全部功能。
+  factory User.localProfile() {
+    final now = DateTime.now();
+    return User(
+      id: 'local-user',
+      email: '',
+      username: '本地用户',
+      accountType: AccountType.pro,
+      limits: AccountLimits.forAccountType(AccountType.pro),
+      usage: const AccountUsage.empty(),
+      createdAt: now,
+      updatedAt: now,
+      isLocal: true,
+    );
+  }
 
   /// 是否为 Pro 用户
   ///
@@ -79,6 +101,7 @@ class User {
     DateTime? createdAt,
     DateTime? updatedAt,
     bool? isAdmin,
+    bool? isLocal,
   }) {
     return User(
       id: id ?? this.id,
@@ -92,6 +115,7 @@ class User {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       isAdmin: isAdmin ?? this.isAdmin,
+      isLocal: isLocal ?? this.isLocal,
     );
   }
 }
