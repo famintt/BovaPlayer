@@ -28,24 +28,28 @@ subprojects {
 }
 
 // 统一所有 Android 子模块（含第三方 Flutter 插件）的 compileSdk。
-// 背景：file_picker 8.3.7 等插件把 compileSdk 硬编码为 34，而
-// flutter_plugin_android_lifecycle 要求依赖方 compileSdk >= 36，
-// 否则 :file_picker:checkReleaseAarMetadata 会直接失败。
-// 这里用反射设置，兼容 AGP 9 的新旧两套 DSL（setCompileSdk / compileSdkVersion）。
+// 背景：file_picker 8.3.7 在自己 build.gradle 里硬编码 `compileSdk 34`，而
+// flutter_plugin_android_lifecycle 要求依赖方 compileSdk >= 36，导致
+// :file_picker:checkReleaseAarMetadata 失败。
+// 插件脚本会在 apply 之后重新写 compileSdk，所以必须在 afterEvaluate 里再覆盖一次；
+// 用反射调用，兼容 AGP 9 的新旧两套 DSL（setCompileSdk / compileSdkVersion）。
 fun Project.forceAndroidCompileSdk(apiLevel: Int) {
     val androidExtension = extensions.findByName("android") ?: return
     val methods = androidExtension.javaClass.methods
-    val setter = methods.firstOrNull { it.name == "setCompileSdk" && it.parameterTypes.size == 1 }
-    if (setter != null) {
-        setter.invoke(androidExtension, apiLevel)
-        return
+    for (name in listOf("setCompileSdk", "compileSdkVersion", "setCompileSdkVersion")) {
+        val setter = methods.firstOrNull { it.name == name && it.parameterTypes.size == 1 } ?: continue
+        try {
+            setter.invoke(androidExtension, apiLevel)
+            return
+        } catch (ignored: Throwable) {
+            // 该方法在当前 AGP 版本不可用，尝试下一个
+        }
     }
-    methods.firstOrNull { it.name == "compileSdkVersion" && it.parameterTypes.size == 1 }
-        ?.invoke(androidExtension, apiLevel)
 }
 
 subprojects {
     plugins.withId("com.android.library") { forceAndroidCompileSdk(36) }
+    afterEvaluate { forceAndroidCompileSdk(36) }
 }
 
 val newBuildDir: Directory =
