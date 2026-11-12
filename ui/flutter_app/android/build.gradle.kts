@@ -27,6 +27,27 @@ subprojects {
     }
 }
 
+// 统一所有 Android 子模块（含第三方 Flutter 插件）的 compileSdk。
+// 背景：file_picker 8.3.7 等插件把 compileSdk 硬编码为 34，而
+// flutter_plugin_android_lifecycle 要求依赖方 compileSdk >= 36，
+// 否则 :file_picker:checkReleaseAarMetadata 会直接失败。
+// 这里用反射设置，兼容 AGP 9 的新旧两套 DSL（setCompileSdk / compileSdkVersion）。
+fun Project.forceAndroidCompileSdk(apiLevel: Int) {
+    val androidExtension = extensions.findByName("android") ?: return
+    val methods = androidExtension.javaClass.methods
+    val setter = methods.firstOrNull { it.name == "setCompileSdk" && it.parameterTypes.size == 1 }
+    if (setter != null) {
+        setter.invoke(androidExtension, apiLevel)
+        return
+    }
+    methods.firstOrNull { it.name == "compileSdkVersion" && it.parameterTypes.size == 1 }
+        ?.invoke(androidExtension, apiLevel)
+}
+
+subprojects {
+    plugins.withId("com.android.library") { forceAndroidCompileSdk(36) }
+}
+
 val newBuildDir: Directory =
     rootProject.layout.buildDirectory
         .dir("../../build")
