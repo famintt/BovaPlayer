@@ -75,6 +75,18 @@ subprojects {
     project.evaluationDependsOn(":app")
 }
 
+// AGP 9 的 lint 任务（lintVitalAnalyzeRelease）在 runner 的 JDK 17 上会崩溃：
+//   NoSuchMethodError: 'java.lang.Object java.util.List.removeLast()'
+// 这是 lint 自身用到了 Java 21 的 API（CommentDetector/JavaDocParser），
+// 与项目代码无关；发布构建不依赖 lint 结果，这里统一禁用所有 lint 任务。
+subprojects {
+    tasks.configureEach {
+        if (name.startsWith("lint")) {
+            enabled = false
+        }
+    }
+}
+
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
