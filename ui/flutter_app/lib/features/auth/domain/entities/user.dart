@@ -1,3 +1,5 @@
+import '../../../../core/config/edition_config.dart';
+
 /// 用户实体
 /// 
 /// 表示应用中的用户信息
@@ -29,13 +31,19 @@ class User {
   });
 
   /// 是否为 Pro 用户
-  bool get isPro => accountType == AccountType.pro || accountType == AccountType.lifetime;
+  ///
+  /// Pro 版发行包内所有账号（含未登录）均享有 Pro 权益。
+  bool get isPro =>
+      EditionConfig.isProEnabled ||
+      accountType == AccountType.pro ||
+      accountType == AccountType.lifetime;
 
   /// 是否为永久版用户
   bool get isLifetime => accountType == AccountType.lifetime;
 
   /// Pro 是否已过期
   bool get isProExpired {
+    if (EditionConfig.isProEnabled) return false;
     if (accountType != AccountType.pro) return false;
     if (proExpiresAt == null) return true;
     return DateTime.now().isAfter(proExpiresAt!);

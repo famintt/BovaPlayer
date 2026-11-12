@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../core/config/edition_config.dart';
 import '../../../core/providers/locale_provider.dart';
 import '../../../core/providers/theme_provider.dart';
 import '../../../core/theme/app_theme.dart';
@@ -209,7 +210,8 @@ class _ThemeSelector extends StatelessWidget {
     final l = S.of(context);
     final themeProvider = context.watch<ThemeProvider>();
     final authProvider = context.watch<AuthProvider>();
-    final hasProAccess = authProvider.user?.isPro ?? false;
+    final hasProAccess =
+        EditionConfig.isProEnabled || (authProvider.user?.isPro ?? false);
     final current = themeProvider.themeMode;
 
     final options = [

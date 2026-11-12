@@ -14,6 +14,7 @@ import 'l10n/generated/app_localizations.dart';
 
 // 云同步功能
 import 'core/config/env_config.dart';
+import 'core/config/edition_config.dart';
 import 'core/providers/locale_provider.dart';
 import 'core/providers/theme_provider.dart';
 import 'features/auth/domain/services/auth_service.dart';
@@ -159,7 +160,8 @@ class BovaPlayerApp extends StatelessWidget {
       child:
           Consumer3<ThemeProvider, LocaleProvider, auth_provider.AuthProvider>(
         builder: (context, themeProvider, localeProvider, authProvider, _) {
-          final hasProAccess = authProvider.user?.isPro ?? false;
+          final hasProAccess =
+              EditionConfig.isProEnabled || (authProvider.user?.isPro ?? false);
           final authReady =
               authProvider.state != auth_provider.AuthState.initial &&
                   authProvider.state != auth_provider.AuthState.loading;

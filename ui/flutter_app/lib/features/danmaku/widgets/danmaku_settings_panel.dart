@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controllers/danmaku_controller.dart';
+import '../../../core/config/edition_config.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../auth/presentation/providers/auth_provider.dart';
 import '../../auth/presentation/pages/pricing_page.dart';
@@ -32,7 +33,7 @@ class _DanmakuSettingsPanelState extends State<DanmakuSettingsPanel> {
       if (!mounted) return;
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       setState(() {
-        _isPro = authProvider.user?.isPro ?? false;
+        _isPro = EditionConfig.isProEnabled || (authProvider.user?.isPro ?? false);
       });
     });
   }

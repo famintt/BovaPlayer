@@ -63,6 +63,18 @@ BovaPlayer 不是单纯的本地播放器，也不是单一媒体服务器客户
 | Windows | 可用 | 支持桌面壳层、自定义窗口控制 |
 | Android | 可用 | 已适配移动壳层与触屏布局 |
 
+## 发行版本
+
+当前发行包默认是 **Pro 版**（`ui/flutter_app/lib/core/config/edition_config.dart`
+里的 `EditionConfig.isProEdition = true`）：
+
+- 所有账号（含未登录）默认按 Pro 版处理，开箱即用，无需订阅
+- Pro 权益：云同步、弹幕、Pro 主题、更多设备/服务器配额
+- 服务端仍把账号标记为 `free` 时，客户端也按 `pro` 解析，额度按 Pro 版计算
+
+需要回退到「社区免费版 + 订阅解锁」时，把 `isProEdition` 改为 `false`
+重新构建即可。
+
 ## 项目结构
 
 ```text

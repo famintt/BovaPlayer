@@ -17,6 +17,7 @@ import 'features/danmaku/controllers/danmaku_controller.dart';
 import 'features/danmaku/widgets/danmaku_view.dart';
 import 'features/danmaku/widgets/danmaku_settings_panel.dart';
 import 'package:provider/provider.dart';
+import 'core/config/edition_config.dart';
 import 'features/auth/presentation/providers/auth_provider.dart';
 
 enum _GestureAxis { none, horizontal, vertical }
@@ -362,7 +363,8 @@ class _MdkPlayerPageState extends State<MdkPlayerPage> with WindowListener {
       // 检查用户是否为 Pro 用户
       if (!mounted) return;
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final isPro = authProvider.user?.isPro ?? false;
+      final isPro =
+          EditionConfig.isProEnabled || (authProvider.user?.isPro ?? false);
       print('[播放器] isPro: $isPro');
 
       if (!isPro) {

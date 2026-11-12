@@ -10,6 +10,7 @@ import 'package:media_kit_video/media_kit_video.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/theme/app_theme.dart';
+import 'core/config/edition_config.dart';
 import 'package:provider/provider.dart';
 import 'features/danmaku/controllers/danmaku_controller.dart';
 import 'features/danmaku/widgets/danmaku_view.dart';
@@ -125,9 +126,9 @@ class _MediaKitPlayerPageState extends State<MediaKitPlayerPage> {
     // 异步加载弹幕，检查 Pro 状态
     Future.microtask(() {
       if (!mounted) return;
-      final isPro =
-          Provider.of<AuthProvider>(context, listen: false).user?.isPro ??
-              false;
+      final isPro = EditionConfig.isProEnabled ||
+          (Provider.of<AuthProvider>(context, listen: false).user?.isPro ??
+              false);
       if (isPro) {
         _danmakuController.loadDanmakuByFileName(widget.title);
       } else {
