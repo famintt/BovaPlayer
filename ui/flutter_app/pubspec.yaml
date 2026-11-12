@@ -25,7 +25,7 @@ dependencies:
   # video_player: ^2.8.2
   package_info_plus: ^9.0.0
   media_kit_libs_macos_video: ^1.1.4
-  fvp: ^0.35.2
+  fvp: ^0.38.1
   window_manager: ^0.4.3
   desktop_multi_window: ^0.3.0
   
