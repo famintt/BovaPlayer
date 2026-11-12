@@ -65,12 +65,15 @@ BovaPlayer 不是单纯的本地播放器，也不是单一媒体服务器客户
 
 ## 发行版本
 
-当前发行包默认是 **Pro 版**（`ui/flutter_app/lib/core/config/edition_config.dart`
+当前发行包默认是 **Pro 版 + 免注册免登录的本地模式**（`ui/flutter_app/lib/core/config/edition_config.dart`
 里的 `EditionConfig.isProEdition = true`）：
 
-- 所有账号（含未登录）默认按 Pro 版处理，开箱即用，无需订阅
+- 启动直接进主界面，不弹登录页；未登录时使用内置的「本地用户」身份，按 Pro 版下发全部权益
 - Pro 权益：云同步、弹幕、Pro 主题、更多设备/服务器配额
-- 服务端仍把账号标记为 `free` 时，客户端也按 `pro` 解析，额度按 Pro 版计算
+- **TMDB 数据源**：设置页 →「TMDB 数据源」填入自己的 TMDB `API Key (v3)` 或
+  `Read Access Token (v4)`，「发现」页即可加载海报、热门推荐与精选背景。
+  凭据只保存在本机 SharedPreferences，不写进安装包
+- 云端账号/同步为可选功能：仓库没有配置 Supabase secrets 时自动降级为本地模式，不报错
 
 需要回退到「社区免费版 + 订阅解锁」时，把 `isProEdition` 改为 `false`
 重新构建即可。
