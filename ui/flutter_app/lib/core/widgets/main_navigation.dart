@@ -1455,7 +1455,7 @@ class _MainNavigationState extends State<MainNavigation> {
                   onToggle: () {
                     setState(() => _isSidebarExpanded = !_isSidebarExpanded);
                   },
-                  onLogoutTap: _logout,
+                  onLogoutTap: authProvider.isAuthenticated ? _logout : null,
                   onSettingsTap: () {
                     setState(() => _showSettings = true);
                   },
