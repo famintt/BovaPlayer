@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/config/edition_config.dart';
+import '../../../core/config/env_config.dart';
+import '../widgets/tmdb_credential_dialog.dart';
 import '../../../core/providers/locale_provider.dart';
 import '../../../core/providers/theme_provider.dart';
 import '../../../core/theme/app_theme.dart';
@@ -76,6 +78,11 @@ class SettingsPage extends StatelessWidget {
                   ],
                 ),
               ),
+
+              const SizedBox(height: DesignSystem.space4),
+
+              // --- TMDB 数据源 ---
+              _TmdbSection(isCyberpunk: isSpecialSettings),
             ],
           ),
         ),
@@ -647,6 +654,109 @@ class _LanguageOptionTile extends StatelessWidget {
               Icon(Icons.check_rounded, color: accentColor, size: 20),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ─── TMDB 数据源 ───
+
+class _TmdbSection extends StatefulWidget {
+  const _TmdbSection({required this.isCyberpunk});
+
+  final bool isCyberpunk;
+
+  @override
+  State<_TmdbSection> createState() => _TmdbSectionState();
+}
+
+class _TmdbSectionState extends State<_TmdbSection> {
+  bool get _isZh =>
+      Localizations.localeOf(context).languageCode.toLowerCase() == 'zh';
+
+  bool get _configured =>
+      EnvConfig.tmdbReadAccessToken.isNotEmpty ||
+      EnvConfig.tmdbApiKey.isNotEmpty;
+
+  Future<void> _openDialog() async {
+    final saved = await showTmdbCredentialDialog(context);
+    if (!mounted || !saved) return;
+    setState(() {});
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          _isZh
+              ? (_configured ? '已保存，返回「发现」页下拉刷新即可' : '已清除 TMDB 凭据')
+              : (_configured ? 'Saved. Pull to refresh on Discover.' : 'TMDB credential cleared.'),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final configured = _configured;
+
+    return _SectionPanel(
+      isCyberpunk: widget.isCyberpunk,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _SectionHeader(
+            icon: Icons.movie_filter_outlined,
+            title: _isZh ? 'TMDB 数据源' : 'TMDB Data Source',
+            isCyberpunk: widget.isCyberpunk,
+          ),
+          const SizedBox(height: DesignSystem.space3),
+          Text(
+            _isZh
+                ? '「发现」页的海报、热门推荐来自 TMDB。填入你自己的 API Key 或 Read Access Token 即可启用，凭据只保存在本机。'
+                : 'Posters and picks in Discover come from TMDB. Add your own API Key or Read Access Token to enable it. The credential stays on this device.',
+            style: TextStyle(
+              fontSize: DesignSystem.textSm,
+              height: 1.5,
+              color: scheme.onSurface.withValues(alpha: 0.55),
+            ),
+          ),
+          const SizedBox(height: DesignSystem.space4),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: DesignSystem.space3,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: configured
+                      ? DesignSystem.success.withValues(alpha: 0.12)
+                      : scheme.onSurface.withValues(alpha: 0.06),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  configured
+                      ? (_isZh ? '已配置' : 'Configured')
+                      : (_isZh ? '未配置' : 'Not configured'),
+                  style: TextStyle(
+                    fontSize: DesignSystem.textXs,
+                    fontWeight: DesignSystem.weightMedium,
+                    color: configured
+                        ? DesignSystem.success
+                        : scheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                ),
+              ),
+              const Spacer(),
+              OutlinedButton.icon(
+                onPressed: _openDialog,
+                icon: const Icon(Icons.key_outlined, size: 16),
+                label: Text(
+                  configured ? (_isZh ? '修改' : 'Change') : (_isZh ? '填写凭据' : 'Add credential'),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

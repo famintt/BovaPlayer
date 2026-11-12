@@ -14,6 +14,7 @@ import 'l10n/generated/app_localizations.dart';
 
 // 云同步功能
 import 'core/config/env_config.dart';
+import 'core/config/tmdb_credential_store.dart';
 import 'core/config/edition_config.dart';
 import 'core/providers/locale_provider.dart';
 import 'core/providers/theme_provider.dart';
@@ -66,6 +67,9 @@ Future<void> main() async {
   } catch (e) {
     print('[Main] 环境变量加载失败: $e');
   }
+
+  // 本机保存的 TMDB 凭据优先于 .env
+  await TmdbCredentialStore.loadAndApply();
 
   try {
     await Supabase.initialize(

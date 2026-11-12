@@ -16,6 +16,8 @@ import '../widgets/discover_matched_source_strip.dart';
 import '../widgets/discover_poster_card.dart';
 import '../services/discover_library_resolver_service.dart';
 import '../services/tmdb_service.dart';
+import '../../settings/widgets/tmdb_credential_dialog.dart';
+import '../../../core/config/tmdb_credential_store.dart';
 import '../widgets/discover_section_row.dart';
 
 class DiscoverPage extends StatefulWidget {
@@ -57,6 +59,15 @@ class _DiscoverPageState extends State<DiscoverPage> {
     super.initState();
     _controller = DiscoverController(service: widget.tmdbService);
     _controller.load(widget.feed, force: true);
+    TmdbCredentialStore.revision.addListener(_handleCredentialChanged);
+  }
+
+  void _handleCredentialChanged() {
+    if (!mounted) return;
+    setState(() {});
+    if (_controller.isConfigured) {
+      _controller.load(widget.feed, force: true);
+    }
   }
 
   @override
@@ -79,6 +90,7 @@ class _DiscoverPageState extends State<DiscoverPage> {
 
   @override
   void dispose() {
+    TmdbCredentialStore.revision.removeListener(_handleCredentialChanged);
     _controller.dispose();
     super.dispose();
   }
@@ -298,7 +310,10 @@ class _DiscoverPageState extends State<DiscoverPage> {
       animation: animation,
       builder: (context, _) {
         if (!_controller.isConfigured) {
-          return _ConfigurationEmptyState(feed: widget.feed);
+          return _ConfigurationEmptyState(
+            feed: widget.feed,
+            onConfigured: () => _controller.load(widget.feed, force: true),
+          );
         }
 
         if (_controller.isLoading && _controller.payload == null) {
@@ -594,9 +609,19 @@ class _SectionIntro extends StatelessWidget {
 }
 
 class _ConfigurationEmptyState extends StatelessWidget {
-  const _ConfigurationEmptyState({required this.feed});
+  const _ConfigurationEmptyState({
+    required this.feed,
+    required this.onConfigured,
+  });
 
   final DiscoverFeed feed;
+  final Future<void> Function() onConfigured;
+
+  Future<void> _openDialog(BuildContext context) async {
+    final saved = await showTmdbCredentialDialog(context);
+    if (!saved) return;
+    await onConfigured();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -653,6 +678,19 @@ class _ConfigurationEmptyState extends StatelessWidget {
                   fontSize: DesignSystem.textBase,
                   color: scheme.onSurface.withValues(alpha: 0.5),
                   height: 1.6,
+                ),
+              ),
+              const SizedBox(height: 20),
+              FilledButton.icon(
+                onPressed: () => _openDialog(context),
+                icon: const Icon(Icons.key_outlined, size: 18),
+                label: Text(
+                  Localizations.localeOf(context)
+                              .languageCode
+                              .toLowerCase() ==
+                          'zh'
+                      ? '填写 TMDB 凭据'
+                      : 'Add TMDB credential',
                 ),
               ),
             ],

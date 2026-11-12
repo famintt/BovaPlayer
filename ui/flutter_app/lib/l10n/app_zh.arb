@@ -110,7 +110,7 @@
   "discoverHotWall": "热门墙",
   "discoverHotWallSubtitle": "从 TMDB 拉取的高热度标题实时网格。",
   "discoverTmdbCredentials": "{title} 需要 TMDB 凭证",
-  "discoverTmdbCredentialsHint": "在 `ui/flutter_app/.env` 中添加 `TMDB_READ_ACCESS_TOKEN` 或 `TMDB_API_KEY`，即可加载海报、热门推荐和精选背景。",
+  "discoverTmdbCredentialsHint": "点击下方按钮填入你的 TMDB API Key 或 Read Access Token，即可加载海报、热门推荐和精选背景。",
   "discoverSearchResultsFor": "{query} 的搜索结果",
   "discoverExplore": "探索",
   "discoverUnableToLoad": "无法加载发现内容",

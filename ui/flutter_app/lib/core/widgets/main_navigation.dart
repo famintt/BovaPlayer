@@ -144,7 +144,7 @@ class _MainNavigationState extends State<MainNavigation> {
     final authProvider =
         Provider.of<auth_provider.AuthProvider>(context, listen: false);
     if (!authProvider.isAuthenticated) {
-      debugPrint('[MainNavigation] 检测到登出，AuthWrapper 将显示登录页');
+      debugPrint('[MainNavigation] 检测到登出（本地模式下属正常）');
     }
   }
 

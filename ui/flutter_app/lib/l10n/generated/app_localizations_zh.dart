@@ -288,7 +288,7 @@ class SZh extends S {
 
   @override
   String get discoverTmdbCredentialsHint =>
-      '在 `ui/flutter_app/.env` 中添加 `TMDB_READ_ACCESS_TOKEN` 或 `TMDB_API_KEY`，即可加载海报、热门推荐和精选背景。';
+      '点击下方按钮填入你的 TMDB API Key 或 Read Access Token，即可加载海报、热门推荐和精选背景。';
 
   @override
   String discoverSearchResultsFor(String query) {

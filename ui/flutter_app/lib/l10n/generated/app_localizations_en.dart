@@ -294,7 +294,7 @@ class SEn extends S {
 
   @override
   String get discoverTmdbCredentialsHint =>
-      'Add `TMDB_READ_ACCESS_TOKEN` or `TMDB_API_KEY` to `ui/flutter_app/.env` to load live posters, trending picks and featured backdrops.';
+      'Tap the button below to add your TMDB API Key or Read Access Token, then load live posters, trending picks and featured backdrops.';
 
   @override
   String discoverSearchResultsFor(String query) {

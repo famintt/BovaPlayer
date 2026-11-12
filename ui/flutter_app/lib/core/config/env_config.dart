@@ -4,6 +4,37 @@ import '../providers/locale_provider.dart';
 
 /// Environment config.
 class EnvConfig {
+  static String _tmdbReadTokenOverride = '';
+  static String _tmdbApiKeyOverride = '';
+
+  /// 用户在设置页手动填写 TMDB 凭据后立即生效（优先于 .env）。
+  static void applyTmdbCredential(String credential) {
+    final value = credential.trim();
+    if (value.isEmpty) {
+      _tmdbReadTokenOverride = '';
+      _tmdbApiKeyOverride = '';
+      return;
+    }
+    if (looksLikeTmdbReadToken(value)) {
+      _tmdbReadTokenOverride = value;
+      _tmdbApiKeyOverride = '';
+    } else {
+      _tmdbApiKeyOverride = value;
+      _tmdbReadTokenOverride = '';
+    }
+  }
+
+  /// v4 Read Access Token 是 JWT（以 eyJ 开头）；v3 API Key 是 32 位十六进制。
+  static bool looksLikeTmdbReadToken(String value) =>
+      value.startsWith('eyJ') && value.length > 60;
+
+  static bool get hasTmdbCredentialOverride =>
+      _tmdbReadTokenOverride.isNotEmpty || _tmdbApiKeyOverride.isNotEmpty;
+
+  static String get tmdbCredential => tmdbReadAccessToken.isNotEmpty
+      ? tmdbReadAccessToken
+      : tmdbApiKey;
+
   static String get supabaseUrl => dotenv.get('SUPABASE_URL', fallback: '');
   static String get supabaseAnonKey =>
       dotenv.get('SUPABASE_ANON_KEY', fallback: '');
@@ -30,9 +61,12 @@ class EnvConfig {
         fallback: 'bovaplayer://auth/github/callback',
       );
 
-  static String get tmdbReadAccessToken =>
-      dotenv.get('TMDB_READ_ACCESS_TOKEN', fallback: '');
-  static String get tmdbApiKey => dotenv.get('TMDB_API_KEY', fallback: '');
+  static String get tmdbReadAccessToken => _tmdbReadTokenOverride.isNotEmpty
+      ? _tmdbReadTokenOverride
+      : dotenv.get('TMDB_READ_ACCESS_TOKEN', fallback: '');
+  static String get tmdbApiKey => _tmdbApiKeyOverride.isNotEmpty
+      ? _tmdbApiKeyOverride
+      : dotenv.get('TMDB_API_KEY', fallback: '');
   static String get tmdbBaseUrl =>
       dotenv.get('TMDB_BASE_URL', fallback: 'https://api.themoviedb.org/3');
   static String get tmdbImageBaseUrl => dotenv.get(
