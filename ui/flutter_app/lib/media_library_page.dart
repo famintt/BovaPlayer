@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 
 import 'emby_page.dart';
 import 'core/theme/design_system.dart';
-import 'features/auth/presentation/providers/auth_provider.dart';
 import 'features/media_library/controllers/media_library_controller.dart';
 import 'features/media_library/models/media_source.dart';
 import 'features/media_library/widgets/media_library_browser.dart';
@@ -120,17 +119,7 @@ class MediaLibraryPageState extends State<MediaLibraryPage> {
     }
   }
 
-  Future<void> refreshAndSync() async {
-    try {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final messageKey = await _controller.refreshAndSync(authProvider);
-      if (!mounted) return;
-      _showSuccess(_localizeMessage(messageKey));
-    } catch (error) {
-      if (!mounted) return;
-      _showError(_localizeError(error));
-    }
-  }
+  Future<void> refreshSources() => _controller.loadSources();
 
   Future<void> _handleOpenSource(MediaSource source) async {
     if (source.type == SourceType.emby) {
@@ -321,8 +310,6 @@ class MediaLibraryPageState extends State<MediaLibraryPage> {
         return l10n.mediaSourceUpdateSuccess;
       case 'delete_success':
         return l10n.mediaSourceDeleteSuccess;
-      case 'sync_complete':
-        return l10n.mediaSourceSyncComplete;
       default:
         return key;
     }
@@ -344,12 +331,6 @@ class MediaLibraryPageState extends State<MediaLibraryPage> {
     }
     if (message == 'login_failed') {
       return l10n.mediaSourceLoginFailed;
-    }
-    if (message == 'please_login') {
-      return l10n.mediaSourcePleaseLogin;
-    }
-    if (message == 'enable_sync') {
-      return l10n.mediaSourceEnableSync;
     }
     if (message == 'no_active_source') {
       return l10n.mediaSourceNoActive;

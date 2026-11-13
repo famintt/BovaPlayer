@@ -25,8 +25,6 @@ import 'features/auth/presentation/providers/auth_provider.dart'
 import 'features/billing/data/repositories/billing_repository_impl.dart';
 import 'features/billing/domain/services/billing_service.dart';
 import 'features/billing/presentation/providers/billing_provider.dart';
-import 'features/auth/presentation/pages/login_page_redesign.dart';
-import 'features/auth/presentation/pages/forgot_password_page.dart';
 import 'features/auth/presentation/pages/account_page.dart';
 
 // 新的设计系统
@@ -186,8 +184,6 @@ class BovaPlayerApp extends StatelessWidget {
             supportedLocales: S.supportedLocales,
             home: const AuthWrapper(),
             routes: {
-              '/login': (context) => const LoginPageRedesign(),
-              '/forgot-password': (context) => const ForgotPasswordPage(),
               '/account': (context) => const AccountPage(),
               '/main': (context) => const MainNavigation(),
             },

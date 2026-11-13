@@ -6,7 +6,6 @@ import '../../../models/network_file.dart';
 import '../../../services/ftp_service.dart';
 import '../../../services/local_proxy_server.dart';
 import '../../../services/smb_service.dart';
-import '../../auth/presentation/providers/auth_provider.dart';
 import '../models/media_source.dart';
 import '../services/media_library_source_service.dart';
 
@@ -224,19 +223,6 @@ class MediaLibraryController extends ChangeNotifier {
     } catch (error) {
       throw Exception('delete_failed:$error');
     }
-  }
-
-  Future<String> refreshAndSync(AuthProvider authProvider) async {
-    if (!authProvider.isAuthenticated) {
-      throw Exception('please_login');
-    }
-    if (!authProvider.isSyncEnabled) {
-      throw Exception('enable_sync');
-    }
-
-    await authProvider.triggerSync();
-    await loadSources();
-    return 'sync_complete';
   }
 
   String createProxyUrl(NetworkFile file) {

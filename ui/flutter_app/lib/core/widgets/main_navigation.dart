@@ -733,13 +733,13 @@ class _MainNavigationState extends State<MainNavigation> {
       ),
       offset: const Offset(0, 40),
       onSelected: (type) {
-        if (type == 'emby') {
-          _mediaLibraryKey.currentState?.showAddSourceDialog(SourceType.emby);
-        } else if (type == 'smb') {
-          _mediaLibraryKey.currentState?.showAddSourceDialog(SourceType.smb);
-        } else if (type == 'ftp') {
-          _mediaLibraryKey.currentState?.showAddSourceDialog(SourceType.ftp);
-        }
+        final sourceType = switch (type) {
+          'emby' => SourceType.emby,
+          'smb' => SourceType.smb,
+          'ftp' => SourceType.ftp,
+          _ => null,
+        };
+        if (sourceType != null) _openAddSourceDialog(sourceType);
       },
       itemBuilder: (ctx) {
         final l = S.of(ctx);
@@ -780,6 +780,20 @@ class _MainNavigationState extends State<MainNavigation> {
         ];
       },
     );
+  }
+
+  void _openAddSourceDialog(SourceType type) {
+    final page = _mediaLibraryKey.currentState;
+    if (page != null) {
+      page.showAddSourceDialog(type);
+      return;
+    }
+
+    setState(() => _currentSection = _AppSection.library);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _mediaLibraryKey.currentState?.showAddSourceDialog(type);
+    });
   }
 
   Widget _buildAvatar(auth_entities.User? user, {double size = 38}) {
@@ -990,8 +1004,8 @@ class _MainNavigationState extends State<MainNavigation> {
       return [
         _TopActionButton(
           icon: BovaIcons.refreshOutline,
-          onTap: () => _mediaLibraryKey.currentState?.refreshAndSync(),
-          tooltip: l.actionRefreshSync,
+          onTap: () => _mediaLibraryKey.currentState?.refreshSources(),
+          tooltip: l.embyRefresh,
         ),
         _buildAddButton(),
       ];
@@ -1228,8 +1242,8 @@ class _MainNavigationState extends State<MainNavigation> {
       actions.addAll([
         _TopActionButton(
           icon: BovaIcons.refreshOutline,
-          onTap: () => _mediaLibraryKey.currentState?.refreshAndSync(),
-          tooltip: l.actionRefreshSync,
+          onTap: () => _mediaLibraryKey.currentState?.refreshSources(),
+          tooltip: l.embyRefresh,
           size: 40,
           iconSize: 19,
           radius: 14,
