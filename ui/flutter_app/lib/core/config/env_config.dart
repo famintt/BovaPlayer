@@ -67,12 +67,28 @@ class EnvConfig {
   static String get tmdbApiKey => _tmdbApiKeyOverride.isNotEmpty
       ? _tmdbApiKeyOverride
       : dotenv.get('TMDB_API_KEY', fallback: '');
-  static String get tmdbBaseUrl =>
-      dotenv.get('TMDB_BASE_URL', fallback: 'https://api.themoviedb.org/3');
-  static String get tmdbImageBaseUrl => dotenv.get(
-        'TMDB_IMAGE_BASE_URL',
-        fallback: 'https://image.tmdb.org/t/p/',
+  static String get tmdbBaseUrl => _tmdbEndpoint(
+        'TMDB_BASE_URL',
+        'https://api.themoviedb.org/3',
       );
+  static String get tmdbImageBaseUrl => _tmdbEndpoint(
+        'TMDB_IMAGE_BASE_URL',
+        'https://image.tmdb.org/t/p/',
+      );
+
+  // CI may write an unset secret as KEY=. dotenv's fallback only handles a
+  // missing key, so empty/invalid endpoints must fall back before URI creation.
+  static String _tmdbEndpoint(String key, String fallback) {
+    final value = dotenv.get(key, fallback: '').trim();
+    final uri = Uri.tryParse(value);
+    if (uri == null ||
+        !uri.hasAuthority ||
+        uri.host.isEmpty ||
+        (uri.scheme != 'https' && uri.scheme != 'http')) {
+      return fallback;
+    }
+    return value;
+  }
   static String get tmdbLanguage {
     final appLanguage = LocaleProvider.currentLanguageCode;
     if (appLanguage == 'zh') return 'zh-CN';
